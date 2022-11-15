@@ -1,0 +1,21 @@
+name: "Build to GIT"
+description: ""
+inputs:
+  source:
+    description: "Previously built folder (needs to be a repo)"
+    required: false
+    default: 'source'
+  target:
+    description: "Newly built code (doesn't need to be a repo)"
+    required: false
+    default: 'target'
+    
+runs:
+  using: "composite"
+  steps:
+    - name: Path Setup
+      shell: bash
+      env:
+        SOURCE_DIR: ${{ inputs.source }}
+        TARGET_DIR: ${{ inputs.target }}
+      run: "${{ github.action_path }}/main.sh"
