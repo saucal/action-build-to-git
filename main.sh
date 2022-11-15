@@ -19,6 +19,27 @@ echo "::group::Cleanup"
 rm -rf ".github"
 echo "::endgroup::"
 
+echo "::group::Handling gitignore overrides"
+# To allow commiting built files in the build branch (which are typically ignored)
+# -------------------
+if [ -f "$BUILD_DEPLOYIGNORE_PATH" ]; then
+	BUILD_GITIGNORE_PATH="${SOURCE_DIR}/.gitignore"
+
+	if [ -f "$BUILD_GITIGNORE_PATH" ]; then
+		rm "$BUILD_GITIGNORE_PATH"
+	fi
+
+	echo "-- found .deployignore; emptying all gitignore files"
+	find "$SOURCE_DIR" -type f -name '.gitignore' | while read GITIGNORE_FILE; do
+		echo "# Emptied by build-to-git; '.deployignore' exists and used as global .gitignore." > $GITIGNORE_FILE
+		echo "${GITIGNORE_FILE}"
+	done
+
+	echo "-- using .deployignore as global .gitignore"
+	mv "$BUILD_DEPLOYIGNORE_PATH" "$BUILD_GITIGNORE_PATH"
+fi
+echo "::endgroup::"
+
 # Add changed files, delete deleted, etc, etc, you know the drill
 echo "::group::Adding files"
 git add -A .
