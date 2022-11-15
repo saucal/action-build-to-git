@@ -22,6 +22,24 @@ echo "::endgroup::"
 echo "::group::Handling gitignore overrides"
 # To allow commiting built files in the build branch (which are typically ignored)
 # -------------------
+BUILD_DEPLOYIGNORE_PATH="${SOURCE_DIR}/.deployignore"
+DEFAULT_DEPLOYIGNORE_PATH="${GITHUB_ACTION_PATH}/.deployignore_default"
+if [ ! -f "$BUILD_DEPLOYIGNORE_PATH" ] && [ -f "$DEFAULT_DEPLOYIGNORE_PATH" ]; then
+	echo "-- using default .deployignore from the action as global .gitignore"
+	touch "$BUILD_DEPLOYIGNORE_PATH"
+	cat "$DEFAULT_DEPLOYIGNORE_PATH" >> "$BUILD_DEPLOYIGNORE_PATH"
+fi
+
+FORCED_DEPLOYIGNORE_PATH="${GITHUB_ACTION_PATH}/.deployignore_forced"
+if [ -f "$FORCED_DEPLOYIGNORE_PATH" ]; then
+	echo "-- adding forced .deployignore entries from the action"
+	touch "$BUILD_DEPLOYIGNORE_PATH"
+	{
+		echo ""
+		cat "$FORCED_DEPLOYIGNORE_PATH"
+	} >> "$BUILD_DEPLOYIGNORE_PATH"
+fi
+
 if [ -f "$BUILD_DEPLOYIGNORE_PATH" ]; then
 	BUILD_GITIGNORE_PATH="${SOURCE_DIR}/.gitignore"
 

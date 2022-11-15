@@ -1,0 +1,16 @@
+# Ignore source assets
+**/assets/source
+
+# Exclude certain paths from being uploaded
+node_modules
+**/node_modules
+lerna.json
+package.json
+project-folders.json
+ruleset.xml
+gulpfile.js
+.editorconfig
+.eslintignore
+.eslintrc
+.stylelintrc
+.stylelintignore
