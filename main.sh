@@ -14,6 +14,11 @@ rm -rf ".git"
 mv ".git_backup" ".git"
 echo "::endgroup::"
 
+echo "::group::Cleanup"
+# GH Actions should not be commited to built repos
+rm -rf ".github"
+echo "::endgroup::"
+
 # Add changed files, delete deleted, etc, etc, you know the drill
 echo "::group::Adding files"
 git add -A .
