@@ -81,3 +81,13 @@ echo "::group::Pushing"
 # Push it (push it real good).
 git push
 echo "::endgroup::"
+
+{
+	echo 'manifest<<EOF_MANIFEST'
+	git diff-tree HEAD --name-status --no-commit-id --no-renames -r | sed -E "s/^[AM]\t/+ /" | sed -E "s/^[D]\t/- /"
+	echo 'EOF_MANIFEST'
+
+	echo 'manifest-raw<<EOF_MANIFEST'
+	git diff-tree HEAD --name-status --no-commit-id --no-renames -r
+	echo 'EOF_MANIFEST'
+} >> "$GITHUB_OUTPUT"

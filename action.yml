@@ -9,11 +9,19 @@ inputs:
     description: "Newly built code (doesn't need to be a repo)"
     required: false
     default: 'target'
+outputs:
+  manifest:
+    description: "Manifest of files changed"
+    value: ${{ steps.main.outputs.manifest }}
+  manifest-raw:
+    description: "GIT Diff of commited file"
+    value: ${{ steps.main.outputs.manifest-raw }}
     
 runs:
   using: "composite"
   steps:
     - name: Path Setup
+      id: main
       shell: bash
       env:
         SOURCE_DIR: ${{ inputs.source }}
