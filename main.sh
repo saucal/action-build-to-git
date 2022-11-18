@@ -63,31 +63,30 @@ echo "::group::Adding files"
 git add -A .
 echo "::endgroup::"
 
-if [ -z "$(git status --porcelain)" ]; then
-	echo "NOTICE: No changes to deploy"
-	exit 0
-fi
+if [ -n "$(git status --porcelain)" ]; then
+	# Commit it.
+	echo "::group::Committing files"
+	BUILD_JOB_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+	MESSAGE=$( printf 'Build changes from %s\n\n%s' "${GITHUB_SHA}" "${BUILD_JOB_URL}" )
+	# Set the Author to the commit (expected to be a client dev) and the committer
+	# will be set to the default Git user for this system
+	git commit -m "${MESSAGE}"
+	echo "::endgroup::"
 
-# Commit it.
-echo "::group::Committing files"
-BUILD_JOB_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-MESSAGE=$( printf 'Build changes from %s\n\n%s' "${GITHUB_SHA}" "${BUILD_JOB_URL}" )
-# Set the Author to the commit (expected to be a client dev) and the committer
-# will be set to the default Git user for this system
-git commit -m "${MESSAGE}"
-echo "::endgroup::"
+	{
+		echo 'manifest<<EOF_MANIFEST'
+		git diff-tree HEAD --name-status --no-commit-id --no-renames -r | sed -E "s/^[AM]\t/+ /" | sed -E "s/^[D]\t/- /"
+		echo 'EOF_MANIFEST'
+
+		echo 'manifest-raw<<EOF_MANIFEST'
+		git diff-tree HEAD --name-status --no-commit-id --no-renames -r
+		echo 'EOF_MANIFEST'
+	} >> "$GITHUB_OUTPUT"
+else
+	echo "manifest=" >> "$GITHUB_OUTPUT"
+fi
 
 echo "::group::Pushing"
 # Push it (push it real good).
 git push
 echo "::endgroup::"
-
-{
-	echo 'manifest<<EOF_MANIFEST'
-	git diff-tree HEAD --name-status --no-commit-id --no-renames -r | sed -E "s/^[AM]\t/+ /" | sed -E "s/^[D]\t/- /"
-	echo 'EOF_MANIFEST'
-
-	echo 'manifest-raw<<EOF_MANIFEST'
-	git diff-tree HEAD --name-status --no-commit-id --no-renames -r
-	echo 'EOF_MANIFEST'
-} >> "$GITHUB_OUTPUT"
