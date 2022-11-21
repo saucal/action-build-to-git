@@ -84,6 +84,7 @@ if [ -n "$(git status --porcelain)" ]; then
 	} >> "$GITHUB_OUTPUT"
 else
 	echo "manifest=" >> "$GITHUB_OUTPUT"
+	echo "manifest-raw=" >> "$GITHUB_OUTPUT"
 fi
 
 if [ "$DEFER_PUSH" != "true" ]; then
