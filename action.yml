@@ -17,6 +17,15 @@ inputs:
     description: "Do a previously deferred push"
     required: false
     default: "false"
+  force-ignore:
+    description: "Force ignore files"
+    required: false
+    default: |
+      /vendor/*
+      !/vendor/composer
+      /vendor/composer/*
+      !/vendor/composer/installers
+      !/vendor/composer/installed.json
 outputs:
   manifest:
     description: "Manifest of files changed"
@@ -43,4 +52,5 @@ runs:
         SOURCE_DIR: ${{ inputs.source }}
         TARGET_DIR: ${{ inputs.target }}
         DEFER_PUSH: ${{ inputs.defer-push }}
+        FORCE_IGNORE: ${{ inputs.force-ignore }}
       run: "${{ github.action_path }}/main.sh"

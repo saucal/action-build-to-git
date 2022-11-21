@@ -30,13 +30,13 @@ if [ ! -f "$BUILD_DEPLOYIGNORE_PATH" ] && [ -f "$DEFAULT_DEPLOYIGNORE_PATH" ]; t
 	cat "$DEFAULT_DEPLOYIGNORE_PATH" >> "$BUILD_DEPLOYIGNORE_PATH"
 fi
 
-FORCED_DEPLOYIGNORE_PATH="${GITHUB_ACTION_PATH}/.deployignore_forced"
-if [ -f "$FORCED_DEPLOYIGNORE_PATH" ]; then
+if [ -n "$FORCE_IGNORE" ]; then
 	echo "-- adding forced .deployignore entries from the action"
 	touch "$BUILD_DEPLOYIGNORE_PATH"
 	{
 		echo ""
-		cat "$FORCED_DEPLOYIGNORE_PATH"
+		echo "# Forced ignored things"
+		echo "$FORCE_IGNORE"
 	} >> "$BUILD_DEPLOYIGNORE_PATH"
 fi
 
