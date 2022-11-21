@@ -1,14 +1,12 @@
 name: "Build to GIT"
 description: ""
 inputs:
-  source:
+  path:
     description: "Previously built folder (needs to be a repo)"
-    required: false
-    default: 'source'
-  target:
+    required: true
+  from:
     description: "Newly built code (doesn't need to be a repo)"
-    required: false
-    default: 'target'
+    required: true
   defer-push:
     description: "Do not push immediately"
     required: false
@@ -37,15 +35,15 @@ runs:
       id: do-push
       shell: bash
       env:
-        SOURCE_DIR: ${{ inputs.source }}
+        PATH_DIR: ${{ inputs.path }}
       run: "${{ github.action_path }}/do-push.sh"
     - name: Path Setup
       if: ${{ inputs.do-push != 'true' }}
       id: main
       shell: bash
       env:
-        SOURCE_DIR: ${{ inputs.source }}
-        TARGET_DIR: ${{ inputs.target }}
+        PATH_DIR: ${{ inputs.path }}
+        FROM_DIR: ${{ inputs.from }}
         DEFER_PUSH: ${{ inputs.defer-push }}
         FORCE_IGNORE: ${{ inputs.force-ignore }}
       run: "${{ github.action_path }}/main.sh"

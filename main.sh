@@ -1,15 +1,15 @@
 #!/bin/bash
-TARGET_DIR="${GITHUB_WORKSPACE}/${TARGET_DIR}"
-SOURCE_DIR="${GITHUB_WORKSPACE}/${SOURCE_DIR}"
+FROM_DIR="${GITHUB_WORKSPACE}/${FROM_DIR}"
+PATH_DIR="${GITHUB_WORKSPACE}/${PATH_DIR}"
 
 echo "::group::Syncing repos"
-cd "${SOURCE_DIR}" || exit 1;
+cd "${PATH_DIR}" || exit 1;
 # Remove everything on the target folder
 git rm -rf . && git clean -fxd
 mv ".git" ".git_backup"
 
 shopt -s dotglob
-mv "${TARGET_DIR}"/* "${SOURCE_DIR}"/
+mv "${FROM_DIR}"/* "${PATH_DIR}"/
 rm -rf ".git"
 mv ".git_backup" ".git"
 echo "::endgroup::"
@@ -22,7 +22,7 @@ echo "::endgroup::"
 echo "::group::Handling gitignore overrides"
 # To allow commiting built files in the build branch (which are typically ignored)
 # -------------------
-BUILD_DEPLOYIGNORE_PATH="${SOURCE_DIR}/.deployignore"
+BUILD_DEPLOYIGNORE_PATH="${PATH_DIR}/.deployignore"
 DEFAULT_DEPLOYIGNORE_PATH="${GITHUB_ACTION_PATH}/.deployignore_default"
 if [ ! -f "$BUILD_DEPLOYIGNORE_PATH" ] && [ -f "$DEFAULT_DEPLOYIGNORE_PATH" ]; then
 	echo "-- using default .deployignore from the action as global .gitignore"
@@ -41,14 +41,14 @@ if [ -n "$FORCE_IGNORE" ]; then
 fi
 
 if [ -f "$BUILD_DEPLOYIGNORE_PATH" ]; then
-	BUILD_GITIGNORE_PATH="${SOURCE_DIR}/.gitignore"
+	BUILD_GITIGNORE_PATH="${PATH_DIR}/.gitignore"
 
 	if [ -f "$BUILD_GITIGNORE_PATH" ]; then
 		rm "$BUILD_GITIGNORE_PATH"
 	fi
 
 	echo "-- found .deployignore; emptying all gitignore files"
-	find "$SOURCE_DIR" -type f -name '.gitignore' | while read GITIGNORE_FILE; do
+	find "$PATH_DIR" -type f -name '.gitignore' | while read GITIGNORE_FILE; do
 		echo "# Emptied by build-to-git; '.deployignore' exists and used as global .gitignore." > $GITIGNORE_FILE
 		echo "${GITIGNORE_FILE}"
 	done
