@@ -9,6 +9,14 @@ inputs:
     description: "Newly built code (doesn't need to be a repo)"
     required: false
     default: 'target'
+  defer-push:
+    description: "Do not push immediately"
+    required: false
+    default: "false"
+  do-push:
+    description: "Do a previously deferred push"
+    required: false
+    default: "false"
 outputs:
   manifest:
     description: "Manifest of files changed"
@@ -21,9 +29,18 @@ runs:
   using: "composite"
   steps:
     - name: Path Setup
+      if: ${{ inputs.do-push == 'true' }}
+      id: do-push
+      shell: bash
+      env:
+        SOURCE_DIR: ${{ inputs.source }}
+      run: "${{ github.action_path }}/do-push.sh"
+    - name: Path Setup
+      if: ${{ inputs.do-push != 'true' }}
       id: main
       shell: bash
       env:
         SOURCE_DIR: ${{ inputs.source }}
         TARGET_DIR: ${{ inputs.target }}
+        DEFER_PUSH: ${{ inputs.defer-push }}
       run: "${{ github.action_path }}/main.sh"

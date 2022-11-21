@@ -86,7 +86,6 @@ else
 	echo "manifest=" >> "$GITHUB_OUTPUT"
 fi
 
-echo "::group::Pushing"
-# Push it (push it real good).
-git push
-echo "::endgroup::"
+if [ "$DEFER_PUSH" != "true" ]; then
+	"$GITHUB_ACTION_PATH"/do-push.sh
+fi
