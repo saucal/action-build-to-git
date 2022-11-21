@@ -20,12 +20,7 @@ inputs:
   force-ignore:
     description: "Force ignore files"
     required: false
-    default: |
-      /vendor/*
-      !/vendor/composer
-      /vendor/composer/*
-      !/vendor/composer/installers
-      !/vendor/composer/installed.json
+    default: ""
 outputs:
   manifest:
     description: "Manifest of files changed"
