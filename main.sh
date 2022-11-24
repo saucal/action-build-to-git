@@ -81,18 +81,19 @@ if [ -n "$(git status --porcelain)" ]; then
 		echo 'manifest-raw<<EOF_MANIFEST'
 		git diff-tree HEAD --name-status --no-commit-id --no-renames -r
 		echo 'EOF_MANIFEST'
-
-		echo 'manifest-full<<EOF_MANIFEST'
-		git ls-tree HEAD -r --format="+ %(path)"
-		echo 'EOF_MANIFEST'
 	} >> "$GITHUB_OUTPUT"
 else
 	{
 		echo "manifest="
 		echo "manifest-raw="
-		echo "manifest-full="
 	} >> "$GITHUB_OUTPUT"
 fi
+
+{
+	echo 'manifest-full<<EOF_MANIFEST'
+	git ls-tree HEAD -r --format="+ %(path)"
+	echo 'EOF_MANIFEST'
+} >> "$GITHUB_OUTPUT"
 
 if [ "$DEFER_PUSH" != "true" ]; then
 	"$GITHUB_ACTION_PATH"/do-push.sh
