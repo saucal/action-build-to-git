@@ -26,6 +26,9 @@ outputs:
   manifest-raw:
     description: "GIT Diff of commited file"
     value: ${{ steps.main.outputs.manifest-raw }}
+  manifest-full:
+    description: "Full list of files"
+    value: ${{ steps.main.outputs.manifest-full }}
     
 runs:
   using: "composite"
