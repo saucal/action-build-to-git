@@ -63,6 +63,19 @@ echo "::group::Adding files"
 git add -A .
 echo "::endgroup::"
 
+MANIFEST_PATH="${RUNNER_TEMP}/git-manifest-$(openssl rand -hex 10)"
+touch "$MANIFEST_PATH"
+MANIFEST_RAW_PATH="${RUNNER_TEMP}/git-manifest-raw-$(openssl rand -hex 10)"
+touch "$MANIFEST_RAW_PATH"
+MANIFEST_FULL_PATH="${RUNNER_TEMP}/git-manifest-full-$(openssl rand -hex 10)"
+touch "$MANIFEST_FULL_PATH"
+
+{
+	echo "manifest=$MANIFEST_PATH"
+	echo "manifest-raw=$MANIFEST_RAW_PATH"
+	echo "manifest-full=$MANIFEST_FULL_PATH"
+} >> "$GITHUB_OUTPUT"
+
 if [ -n "$(git status --porcelain)" ]; then
 	# Commit it.
 	echo "::group::Committing files"
@@ -74,26 +87,17 @@ if [ -n "$(git status --porcelain)" ]; then
 	echo "::endgroup::"
 
 	{
-		echo 'manifest<<EOF_MANIFEST'
 		git diff-tree HEAD --name-status --no-commit-id --no-renames -r | sed -E "s/^[AM]\t/+ /" | sed -E "s/^[D]\t/- /"
-		echo 'EOF_MANIFEST'
+	} > "$MANIFEST_PATH"
 
-		echo 'manifest-raw<<EOF_MANIFEST'
-		git diff-tree HEAD --name-status --no-commit-id --no-renames -r
-		echo 'EOF_MANIFEST'
-	} >> "$GITHUB_OUTPUT"
-else
 	{
-		echo "manifest="
-		echo "manifest-raw="
-	} >> "$GITHUB_OUTPUT"
+		git diff-tree HEAD --name-status --no-commit-id --no-renames -r
+	} > "$MANIFEST_RAW_PATH"
 fi
 
 {
-	echo 'manifest-full<<EOF_MANIFEST'
 	git ls-tree HEAD -r --format="+ %(path)"
-	echo 'EOF_MANIFEST'
-} >> "$GITHUB_OUTPUT"
+} >> "$MANIFEST_FULL_PATH"
 
 if [ "$DEFER_PUSH" != "true" ]; then
 	"$GITHUB_ACTION_PATH"/do-push.sh
