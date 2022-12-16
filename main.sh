@@ -11,6 +11,10 @@ mv ".git" ".git_backup"
 shopt -s dotglob
 mv "${FROM_DIR}"/* "${PATH_DIR}"/
 rm -rf ".git"
+find "$PATH_DIR" -type d -name '.git' -prune | while read GIT_SUB_FOLDER; do
+	echo "Found .git folder within the directory, removing it. Path: ${GIT_SUB_FOLDER}"
+	rm -rf "${GIT_SUB_FOLDER}"
+done
 mv ".git_backup" ".git"
 echo "::endgroup::"
 
