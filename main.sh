@@ -64,7 +64,7 @@ echo "::endgroup::"
 
 # Add changed files, delete deleted, etc, etc, you know the drill
 echo "::group::Adding files"
-git add -A -v .
+git add -A .
 echo "::endgroup::"
 
 MANIFEST_PATH="${RUNNER_TEMP}/git-manifest-$(openssl rand -hex 10)"
@@ -102,6 +102,10 @@ fi
 {
 	git ls-tree HEAD -r --format="+ %(path)"
 } >> "$MANIFEST_FULL_PATH"
+
+echo "::group::Printing out manifest"
+cat "$MANIFEST_PATH"
+echo "::endgroup::"
 
 if [ "$DEFER_PUSH" != "true" ]; then
 	"$GITHUB_ACTION_PATH"/do-push.sh
