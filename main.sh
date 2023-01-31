@@ -64,7 +64,7 @@ echo "::endgroup::"
 
 # Add changed files, delete deleted, etc, etc, you know the drill
 echo "::group::Adding files"
-git add -A .
+git add -A -v .
 echo "::endgroup::"
 
 MANIFEST_PATH="${RUNNER_TEMP}/git-manifest-$(openssl rand -hex 10)"
