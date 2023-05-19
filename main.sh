@@ -67,6 +67,8 @@ echo "::group::Adding files"
 git add -A .
 echo "::endgroup::"
 
+git clean -fxd
+
 MANIFEST_PATH="${RUNNER_TEMP}/git-manifest-$(openssl rand -hex 10)"
 touch "$MANIFEST_PATH"
 MANIFEST_RAW_PATH="${RUNNER_TEMP}/git-manifest-raw-$(openssl rand -hex 10)"
