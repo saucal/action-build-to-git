@@ -4,7 +4,7 @@ if [[ $PATH_DIR != /* ]]; then
 fi
 
 cd "${PATH_DIR}" || exit 1;
-echo "::group::Pushing"
+echo "::group::Pushing to GIT"
 # Push it (push it real good).
 git push
 echo "::endgroup::"
