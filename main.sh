@@ -76,10 +76,21 @@ touch "$MANIFEST_RAW_PATH"
 MANIFEST_FULL_PATH="${RUNNER_TEMP}/git-manifest-full-$(openssl rand -hex 10)"
 touch "$MANIFEST_FULL_PATH"
 
+HAS_PREV_COMMIT='true'
+# Check if there is a previous commit
+if ! git rev-parse --verify HEAD &>/dev/null ; then
+	echo "No commit"
+	HAS_PREV_COMMIT='false'
+elif [ -z "$(git diff-tree --no-commit-id --name-only HEAD -r)" ]; then
+	echo "No changes in current commit"
+	HAS_PREV_COMMIT='false'
+fi
+
 {
 	echo "manifest=$MANIFEST_PATH"
 	echo "manifest-raw=$MANIFEST_RAW_PATH"
 	echo "manifest-full=$MANIFEST_FULL_PATH"
+	echo "has-prev-commit=$HAS_PREV_COMMIT"
 } >> "$GITHUB_OUTPUT"
 
 if [ -n "$(git status --porcelain)" ]; then

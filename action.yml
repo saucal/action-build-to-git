@@ -29,6 +29,9 @@ outputs:
   manifest-full:
     description: "Full list of files"
     value: ${{ steps.main.outputs.manifest-full }}
+  has-prev-commit:
+    description: "Whether a commit was made before the current change"
+    value: ${{ steps.main.outputs.has-prev-commit }}
     
 runs:
   using: "composite"
