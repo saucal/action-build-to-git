@@ -45,6 +45,27 @@ if [ -n "$FORCE_IGNORE" ]; then
 fi
 
 if [ -f "$BUILD_DEPLOYIGNORE_PATH" ]; then
+	echo "-- include plugins and themes managed via composer (aka ignored by .gitignore) to .deployignore"
+	touch "$BUILD_DEPLOYIGNORE_PATH"
+	{
+		echo ""
+		echo "# Force include the contents of plugins managed via composer"
+		for i in $(ls -d plugins/*); do
+			if [ -d $i ]; then
+				if git check-ignore "$i" &>/dev/null; then
+					printf "!/%s/**\n" "$i"
+				fi
+			fi
+		done
+		for i in $(ls -d themes/*); do
+			if git check-ignore "$i" &>/dev/null; then
+				printf "!/%s/**\n" "$i"
+			fi
+		done
+	} >> "$BUILD_DEPLOYIGNORE_PATH"
+fi
+
+if [ -f "$BUILD_DEPLOYIGNORE_PATH" ]; then
 	BUILD_GITIGNORE_PATH="${PATH_DIR}/.gitignore"
 
 	if [ -f "$BUILD_GITIGNORE_PATH" ]; then
