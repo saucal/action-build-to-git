@@ -101,9 +101,13 @@ HAS_PREV_COMMIT='true'
 # Check if there is a previous commit
 if ! git rev-parse --verify HEAD &>/dev/null ; then
 	echo "No commit"
+	git log -1 --pretty=%B
+	git rev-parse --verify HEAD
 	HAS_PREV_COMMIT='false'
-elif [ -z "$(git diff-tree --no-commit-id --name-only HEAD -r)" ]; then
+elif [ -z "$(git log --name-only --pretty=format: -1)" ]; then
 	echo "No changes in current commit"
+	git log -1 --pretty=%B
+	git log --name-only --pretty=format: -1
 	HAS_PREV_COMMIT='false'
 fi
 
