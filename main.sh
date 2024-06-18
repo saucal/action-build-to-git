@@ -129,12 +129,13 @@ if [ -n "$(git status --porcelain)" ]; then
 	echo "::endgroup::"
 
 	{
-		git diff-tree HEAD --name-status --no-commit-id --no-renames -r | sed -E "s/^[AM]\t/+ /" | sed -E "s/^[D]\t/- /"
-	} > "$MANIFEST_PATH"
-
-	{
 		git diff-tree HEAD --name-status --no-commit-id --no-renames -r
 	} > "$MANIFEST_RAW_PATH"
+
+	{
+		sed -E "s/^[AM]\t/+ /" "$MANIFEST_RAW_PATH" | sed -E "s/^[D]\t/- /"
+	} > "$MANIFEST_PATH"
+
 fi
 
 {
