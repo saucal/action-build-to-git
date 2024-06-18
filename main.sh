@@ -129,11 +129,16 @@ if [ -n "$(git status --porcelain)" ]; then
 	echo "::endgroup::"
 
 	{
-		git diff-tree HEAD --name-status --no-commit-id --no-renames -r
+		# include the changes in the current commit
+		# add H as a new type of change to indicate that the file is the same, but that only filemode changed
+		# this will be useful to specifically ignore filemode changes in the manifest if needed
+		# see https://git-scm.com/docs/git-diff-tree#Documentation/git-diff-tree.txt---diff-filterACDMRTUXB82308203
+		# the awk command end up simulating the --name-status output
+		git diff-tree HEAD --no-commit-id --no-renames -r | awk '{ if( $3 == $4 ) print "H\t" $6; else print $5 "\t" $6; }'
 	} > "$MANIFEST_RAW_PATH"
 
 	{
-		sed -E "s/^[AM]\t/+ /" "$MANIFEST_RAW_PATH" | sed -E "s/^[D]\t/- /"
+		sed -E "s/^[AMH]\t/+ /" "$MANIFEST_RAW_PATH" | sed -E "s/^[D]\t/- /"
 	} > "$MANIFEST_PATH"
 
 fi
