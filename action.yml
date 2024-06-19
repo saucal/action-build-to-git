@@ -19,6 +19,10 @@ inputs:
     description: "Force ignore files"
     required: false
     default: ""
+  strict-perms:
+    description: "Strict file permissions. If set to false, filemode-only changes will be ignored on the manifest."
+    required: false
+    default: "true"
 outputs:
   manifest:
     description: "Manifest of files changed"
@@ -52,4 +56,5 @@ runs:
         FROM_DIR: ${{ inputs.from }}
         DEFER_PUSH: ${{ inputs.defer-push }}
         FORCE_IGNORE: ${{ inputs.force-ignore }}
+        STRICT_PERMS: ${{ inputs.strict-perms }}
       run: "${{ github.action_path }}/main.sh"
