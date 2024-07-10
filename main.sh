@@ -2,10 +2,17 @@
 FROM_DIR="${GITHUB_WORKSPACE}/${FROM_DIR}"
 PATH_DIR="${GITHUB_WORKSPACE}/${PATH_DIR}"
 
+DEBUG_OUTPUT="/dev/null"
+DEBUG_OUTPUT_ERR="/dev/null"
+if [ "$RUNNER_DEBUG" == "1" ]; then
+	DEBUG_OUTPUT="/dev/stdout"
+	DEBUG_OUTPUT_ERR="/dev/stderr"
+fi
+
 echo "::group::Syncing repos"
 cd "${PATH_DIR}" || exit 1;
 # Remove everything on the target folder
-git rm -rf . && git clean -fxd
+( git rm -rf . && git clean -fxd ) > $DEBUG_OUTPUT 2> $DEBUG_OUTPUT_ERR
 mv ".git" ".git_backup"
 
 shopt -s dotglob
