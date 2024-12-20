@@ -146,10 +146,10 @@ if [ -n "$(git status --porcelain)" ]; then
 		git diff-tree HEAD --no-commit-id --no-renames -r | {
 			if [ "$STRICT_PERMS" == "false" ]; then
 				# if no strict perms, exclude files that only had filemode changes
-				awk '{ if( $3 != $4 ) print $5 "\t" $6; }'
+				awk '{output=""; for (i = 6; i <= NF; i++) output = output (output == "" ? "" : OFS) $i; if( $3 != $4 ) print $5 "\t" output; }'
 			else
 				# otherwise, include them
-				awk '{ if( $3 == $4 ) print "H\t" $6; else print $5 "\t" $6; }'
+				awk '{output=""; for (i = 6; i <= NF; i++) output = output (output == "" ? "" : OFS) $i; if( $3 == $4 ) print "H\t" output; else print $5 "\t" output; }'
 			fi
 		}
 	} > "$MANIFEST_RAW_PATH"
