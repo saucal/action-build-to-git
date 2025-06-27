@@ -92,6 +92,7 @@ echo "::endgroup::"
 
 # Add changed files, delete deleted, etc, etc, you know the drill
 echo "::group::Adding files"
+git config core.autocrlf false
 git add -A .
 echo "::endgroup::"
 
