@@ -9,6 +9,12 @@ if [ "$RUNNER_DEBUG" == "1" ]; then
 	DEBUG_OUTPUT_ERR="/dev/stderr"
 fi
 
+echo "::group::Setting up git"
+cd "${PATH_DIR}" || exit 1;
+git config "core.autocrlf" "false"
+git config --global "core.autocrlf" "false"
+echo "::endgroup::"
+
 echo "::group::Syncing repos"
 cd "${PATH_DIR}" || exit 1;
 # Remove everything on the target folder
@@ -92,7 +98,6 @@ echo "::endgroup::"
 
 # Add changed files, delete deleted, etc, etc, you know the drill
 echo "::group::Adding files"
-git config core.autocrlf false
 git add -A .
 echo "::endgroup::"
 
