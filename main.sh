@@ -57,14 +57,23 @@ if [ -f "$BUILD_DEPLOYIGNORE_PATH" ]; then
 	{
 		echo ""
 		echo "# Force include the contents of plugins managed via composer"
-		for i in $(ls -d plugins/*); do
+
+		if [ -d "wp-content" ]; then
+			THEME_DIR="wp-content/themes"
+			PLUGIN_DIR="wp-content/plugins"
+		else
+			THEME_DIR="themes"
+			PLUGIN_DIR="plugins"
+		fi
+
+		for i in $(ls -d "$PLUGIN_DIR/"*); do
 			if [ -d $i ]; then
 				if git check-ignore "$i" &>/dev/null; then
 					printf "!/%s/**\n" "$i"
 				fi
 			fi
 		done
-		for i in $(ls -d themes/*); do
+		for i in $(ls -d "$THEME_DIR/"*); do
 			if git check-ignore "$i" &>/dev/null; then
 				printf "!/%s/**\n" "$i"
 			fi
