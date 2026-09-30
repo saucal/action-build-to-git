@@ -41,6 +41,21 @@ if [ ! -f "$BUILD_DEPLOYIGNORE_PATH" ] && [ -f "$DEFAULT_DEPLOYIGNORE_PATH" ]; t
 	cat "$DEFAULT_DEPLOYIGNORE_PATH" >> "$BUILD_DEPLOYIGNORE_PATH"
 fi
 
+# Prepended so the repo's own .deployignore can re-include them (e.g. `!/e2e/`)
+echo "-- prepending always-ignored entries (e2e test suites)"
+touch "$BUILD_DEPLOYIGNORE_PATH"
+{
+	echo "# Always ignored: e2e suites run from CI, never deployed"
+	echo "/e2e/"
+	echo "/tests/e2e/"
+	echo "/test/e2e/"
+	# A root tests/ is only a suite when it is its own package (matches e2e.sh discovery)
+	[ -f "tests/package.json" ] && echo "/tests/"
+	echo ""
+	cat "$BUILD_DEPLOYIGNORE_PATH"
+} > "${BUILD_DEPLOYIGNORE_PATH}.tmp"
+mv "${BUILD_DEPLOYIGNORE_PATH}.tmp" "$BUILD_DEPLOYIGNORE_PATH"
+
 if [ -n "$FORCE_IGNORE" ]; then
 	echo "-- adding forced .deployignore entries from the action"
 	touch "$BUILD_DEPLOYIGNORE_PATH"
