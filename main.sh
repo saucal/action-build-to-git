@@ -1,6 +1,6 @@
 #!/bin/bash
 FROM_DIR="${GITHUB_WORKSPACE}/${FROM_DIR}"
-PATH_DIR="${GITHUB_WORKSPACE}/${PATH_DIR}"
+PATH_DIR="${GITHUB_WORKSPACE}/${PATH_DIR%/}"
 
 DEBUG_OUTPUT="/dev/null"
 DEBUG_OUTPUT_ERR="/dev/null"
@@ -31,6 +31,7 @@ rm -rf ".github"
 echo "::endgroup::"
 
 echo "::group::Handling gitignore overrides"
+COMPOSER_DIRS=()
 # To allow commiting built files in the build branch (which are typically ignored)
 # -------------------
 BUILD_DEPLOYIGNORE_PATH="${PATH_DIR}/.deployignore"
@@ -85,12 +86,14 @@ if [ -f "$BUILD_DEPLOYIGNORE_PATH" ]; then
 			if [ -d $i ]; then
 				if git check-ignore "$i" &>/dev/null; then
 					printf "!/%s/**\n" "$i"
+					COMPOSER_DIRS+=("$i")
 				fi
 			fi
 		done
 		for i in $(ls -d "$THEME_DIR/"*); do
 			if git check-ignore "$i" &>/dev/null; then
 				printf "!/%s/**\n" "$i"
+				[ -d "$i" ] && COMPOSER_DIRS+=("$i")
 			fi
 		done
 	} >> "$BUILD_DEPLOYIGNORE_PATH"
@@ -103,8 +106,12 @@ if [ -f "$BUILD_DEPLOYIGNORE_PATH" ]; then
 		rm "$BUILD_GITIGNORE_PATH"
 	fi
 
-	echo "-- found .deployignore; emptying all gitignore files"
+	echo "-- found .deployignore; emptying all gitignore files (except in composer managed packages)"
 	find "$PATH_DIR" -type f -name '.gitignore' | while read GITIGNORE_FILE; do
+		# Composer packages are committed as installed, nested .gitignore files included
+		for DIR in "${COMPOSER_DIRS[@]}"; do
+			[[ "$GITIGNORE_FILE" == "${PATH_DIR}/${DIR}/"* ]] && continue 2
+		done
 		echo "# Emptied by build-to-git; '.deployignore' exists and used as global .gitignore." > $GITIGNORE_FILE
 		echo "${GITIGNORE_FILE}"
 	done
@@ -117,6 +124,11 @@ echo "::endgroup::"
 # Add changed files, delete deleted, etc, etc, you know the drill
 echo "::group::Adding files"
 git add -A .
+# Force add composer packages, so their own .gitignore files don't leave anything out.
+# Skip packages the global .gitignore excludes as a whole (e.g. `/plugins/akismet` in .deployignore)
+for DIR in "${COMPOSER_DIRS[@]}"; do
+	git check-ignore -q "$DIR" || git add -A -f -- "$DIR"
+done
 echo "::endgroup::"
 
 echo "::group::Cleanup again"
