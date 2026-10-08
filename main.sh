@@ -18,7 +18,7 @@ mv ".git" ".git_backup"
 shopt -s dotglob
 mv "${FROM_DIR}"/* "${PATH_DIR}"/
 rm -rf ".git"
-find "$PATH_DIR" -type d -name '.git' -prune | while read GIT_SUB_FOLDER; do
+find "$PATH_DIR" -type d -name '.git' -prune | while IFS= read -r GIT_SUB_FOLDER; do
 	echo "Found .git folder within the directory, removing it. Path: ${GIT_SUB_FOLDER}"
 	rm -rf "${GIT_SUB_FOLDER}"
 done
@@ -82,15 +82,16 @@ if [ -f "$BUILD_DEPLOYIGNORE_PATH" ]; then
 			PLUGIN_DIR="plugins"
 		fi
 
-		for i in $(ls -d "$PLUGIN_DIR/"*); do
-			if [ -d $i ]; then
+		shopt -s nullglob
+		for i in "$PLUGIN_DIR/"*; do
+			if [ -d "$i" ]; then
 				if git check-ignore "$i" &>/dev/null; then
 					printf "!/%s/**\n" "$i"
 					COMPOSER_DIRS+=("$i")
 				fi
 			fi
 		done
-		for i in $(ls -d "$THEME_DIR/"*); do
+		for i in "$THEME_DIR/"*; do
 			if git check-ignore "$i" &>/dev/null; then
 				printf "!/%s/**\n" "$i"
 				[ -d "$i" ] && COMPOSER_DIRS+=("$i")
@@ -107,12 +108,12 @@ if [ -f "$BUILD_DEPLOYIGNORE_PATH" ]; then
 	fi
 
 	echo "-- found .deployignore; emptying all gitignore files (except in composer managed packages)"
-	find "$PATH_DIR" -type f -name '.gitignore' | while read GITIGNORE_FILE; do
+	find "$PATH_DIR" -type f -name '.gitignore' | while IFS= read -r GITIGNORE_FILE; do
 		# Composer packages are committed as installed, nested .gitignore files included
 		for DIR in "${COMPOSER_DIRS[@]}"; do
 			[[ "$GITIGNORE_FILE" == "${PATH_DIR}/${DIR}/"* ]] && continue 2
 		done
-		echo "# Emptied by build-to-git; '.deployignore' exists and used as global .gitignore." > $GITIGNORE_FILE
+		echo "# Emptied by build-to-git; '.deployignore' exists and used as global .gitignore." > "$GITIGNORE_FILE"
 		echo "${GITIGNORE_FILE}"
 	done
 
