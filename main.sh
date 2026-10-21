@@ -1,6 +1,10 @@
 #!/bin/bash
 FROM_DIR="${GITHUB_WORKSPACE}/${FROM_DIR}"
 PATH_DIR="${GITHUB_WORKSPACE}/${PATH_DIR%/}"
+# The commit actually built: a self-heal builds another commit than the one that triggered the run
+# (source-ref), and the next consistency check reads this to know what is deployed. Read it now:
+# the source's .git is moved away below.
+SOURCE_SHA="$(git -C "${FROM_DIR}" rev-parse HEAD 2>/dev/null || echo "${GITHUB_SHA}")"
 
 DEBUG_OUTPUT="/dev/null"
 DEBUG_OUTPUT_ERR="/dev/null"
@@ -168,7 +172,7 @@ if [ -n "$(git status --porcelain)" ]; then
 	# Commit it.
 	echo "::group::Committing files"
 	BUILD_JOB_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
-	MESSAGE=$( printf 'Build changes from %s\n\n%s' "${GITHUB_SHA}" "${BUILD_JOB_URL}" )
+	MESSAGE=$( printf 'Build changes from %s\n\n%s' "${SOURCE_SHA}" "${BUILD_JOB_URL}" )
 	# Set the Author to the commit (expected to be a client dev) and the committer
 	# will be set to the default Git user for this system
 	git commit -m "${MESSAGE}"
