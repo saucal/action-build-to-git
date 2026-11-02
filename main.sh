@@ -184,13 +184,14 @@ if [ -n "$(git status --porcelain)" ]; then
 		# this will be useful to specifically ignore filemode changes in the manifest if needed
 		# see https://git-scm.com/docs/git-diff-tree#Documentation/git-diff-tree.txt---diff-filterACDMRTUXB82308203
 		# the awk command end up simulating the --name-status output
+		# split on the tab before the path: whitespace splitting collapsed runs of spaces in names
 		git diff-tree HEAD --no-commit-id --no-renames -r | {
 			if [ "$STRICT_PERMS" == "false" ]; then
 				# if no strict perms, exclude files that only had filemode changes
-				awk '{output=""; for (i = 6; i <= NF; i++) output = output (output == "" ? "" : OFS) $i; if( $3 != $4 ) print $5 "\t" output; }'
+				awk -F'\t' '{split($1, m, " "); if( m[3] != m[4] ) print m[5] "\t" $2; }'
 			else
 				# otherwise, include them
-				awk '{output=""; for (i = 6; i <= NF; i++) output = output (output == "" ? "" : OFS) $i; if( $3 == $4 ) print "H\t" output; else print $5 "\t" output; }'
+				awk -F'\t' '{split($1, m, " "); if( m[3] == m[4] ) print "H\t" $2; else print m[5] "\t" $2; }'
 			fi
 		}
 	} > "$MANIFEST_RAW_PATH"
